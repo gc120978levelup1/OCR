@@ -1,24 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Optical Character Recognition JS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-clifford: #da373d;
+      }
+    </style>
+    <script src="tesseract.min.js"></script>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src='https://unpkg.com/tesseract.js@v2.0.2/dist/tesseract.min.js'></script>
-</head>
+  <body class="m-0 p-0 bg-black">
+    <div class="relative flex flex-row w-full text-white h-screen overflow-y-hidden">
+      <div class="bg-red-950 w-1/2 p-4">
+        <div class="flex flex-row">
+          <h1 class="text-2xl p-2">Original Picture</h1>
+          <input
+            type="file"
+            id="imagFileInput"
+            accept="image/*"
+            class="border my-auto p-2 ml-auto hover:cursor-pointer hover:bg-gray-900 bg-black rounded-lg border-black"
+          />
+        </div>
 
-<body>
-    <script>
-        Tesseract.recognize(
-            'imagetext.png',
-            'eng',
-            { logger: m => console.log(m) }
-        ).then(({ data: { text } }) => {
-            console.log(text);
-        })
-    </script>
-</body>
+        <img
+          id="imageDOM"
+          src="imagetext.png"
+          alt=""
+          srcset=""
+          class="border-2 rounded-lg h-[80vh]"
+        />
+      </div>
+      <div class="bg-blue-950 w-1/2 p-4">
+        <h1 class="text-2xl p-2">Output Text</h1>
+        <div
+          id="textsOutput"
+          class="overflow p-4 border-2 rounded-lg min-h-[80vh]"
+        >
+          Processing ....
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    // DOM Identification
+    const textOutput = document.getElementById("textsOutput");
+    const fileDOM = document.getElementById("imagFileInput");
+    const imageDOM = document.getElementById("imageDOM");
+    
+    // Otical Character Recognition
+    const startOCR = (URL) => {
+      Tesseract.recognize(
+        URL
+        ,"eng", {
+        logger: (m) => {
+          textOutput.innerHTML = "Processing .... <br/>" + JSON.stringify(m)
+        },}).then(({ data: { text } }) => {
+          console.log(text);
+          textOutput.innerHTML = text;
+        });
+    };
+    
+    // start OCR
+    startOCR("imagetext.png");
+    
+    // Open an Image file to perform OCR
+    fileDOM.addEventListener("change", (event) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(event.target.files[0]);
+      reader.onloadend = () => {
+        imageDOM.src = reader.result;
+        startOCR(reader.result);
+      };
+    });
 
+  </script>
 </html>
